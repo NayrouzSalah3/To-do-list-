@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>To-Do List</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Mystery+Quest&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      background-color: brown;
+      font-family: "Mystery Quest", cursive;
+      color: white;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    #add-task-btn {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: white;
+      color: brown;
+      border: none;
+      cursor: pointer;
+      border-radius: 10px;
+    }
+
+    #task-list {
+      margin-top: 20px;
+    }
+
+    .task {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: white;
+      color: black;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      flex-wrap: wrap;
+    }
+
+    .info {
+      flex-grow: 1;
+    }
+
+    .date {
+      font-size: 12px;
+      color: gray;
+    }
+
+    .done {
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+
+    .task button {
+      margin-left: 10px;
+      background-color: brown;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+
+  </style>
+</head>
+<body>
+  <h1>To-Do List</h1>
+  <button id="add-task-btn">أضف مهمة</button>
+  <div id="task-list"></div>
+
+  <script>
+    const taskList = document.getElementById("task-list");
+    let tasks = [];
+
+    function saveTasks() {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    function renderTasks() {
+      taskList.innerHTML = "";
+
+      tasks.forEach((task, index) => {
+        const taskDiv = document.createElement("div");
+        taskDiv.className = "task" + (task.done ? " done" : "");
+
+        const infoDiv = document.createElement("div");
+        infoDiv.className = "info";
+
+        const textDiv = document.createElement("div");
+        textDiv.textContent = task.text;
+
+        const dateDiv = document.createElement("div");
+        dateDiv.className = "date";
+        dateDiv.textContent = task.date;
+
+        infoDiv.appendChild(textDiv);
+        infoDiv.appendChild(dateDiv);
+        taskDiv.appendChild(infoDiv);
+
+        const toggleBtn = document.createElement("button");
+        toggleBtn.textContent = task.done ? "استرجاع" : "تمّ";
+        toggleBtn.onclick = function () {
+          tasks[index].done = !tasks[index].done;
+          saveTasks();
+          renderTasks();
+        };
+        taskDiv.appendChild(toggleBtn);
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "حذف";
+        deleteBtn.onclick = function () {
+          tasks.splice(index, 1);
+          saveTasks();
+          renderTasks();
+        };
+        taskDiv.appendChild(deleteBtn);
+
+        taskList.appendChild(taskDiv);
+      });
+    }
+
+    document.getElementById("add-task-btn").onclick = function () {
+      const text = prompt("اكتب المهمة:");
+      const date = new Date().toLocaleDateString();
+
+      if (text) {
+        tasks.push({ text, date, done: false });
+        saveTasks();
+        renderTasks();
+      }
+    };
+
+    window.onload = function () {
+      const storedTasks = localStorage.getItem("tasks");
+      if (storedTasks) {
+        tasks = JSON.parse(storedTasks);
+      }
+      renderTasks();
+    };
+  </script>
+</body>
+</html>
